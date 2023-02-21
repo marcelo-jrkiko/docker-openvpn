@@ -4,6 +4,8 @@
 # Run the OpenVPN server normally
 #
 
+ulogd -d
+
 if [ "$DEBUG" == "1" ]; then
   set -x
 fi
@@ -39,6 +41,8 @@ function addArg {
 # this allows rules/routing to be altered by supplying this function
 # in an included file, such as ovpn_env.sh
 function setupIptablesAndRouting {
+    echo "Adding NATs for $OPVPN_NETDEVICE"
+
     iptables -t nat -C POSTROUTING -s $OVPN_SERVER -o $OVPN_NATDEVICE -j MASQUERADE 2>/dev/null || {
       iptables -t nat -A POSTROUTING -s $OVPN_SERVER -o $OVPN_NATDEVICE -j MASQUERADE
     }

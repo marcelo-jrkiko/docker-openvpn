@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Starting up the ULOGd.."
+ulogd -d
+
+echo "Restoring rules.."
+
+set -x
+for entry in /var/switch/*.rule ; do bash $entry ; done
+
+echo "Running..."
+tail -f /var/log/switch.log
+while :; do sleep 10; done

@@ -1,0 +1,14 @@
+FROM ubuntu:latest
+
+RUN apt update
+RUN apt install curl gpg -y
+RUN apt install iptables bash iputils-ping iproute2 tcpdump ulogd2 -y
+RUN mkdir /var/switch
+
+VOLUME ["/var/switch"]
+
+COPY ./ulogd.conf /etc/ulogd.conf
+CMD ["run-switch"]
+
+ADD ./switch /usr/local/bin
+RUN chmod a+x /usr/local/bin/*
