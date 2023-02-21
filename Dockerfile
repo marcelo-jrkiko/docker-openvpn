@@ -1,15 +1,15 @@
-# Original credit: https://github.com/jpetazzo/dockvpn
+FROM ubuntu:latest
 
-# Smallest base image
-FROM alpine:latest
+RUN apt update
+RUN apt install curl gpg -y
+RUN curl -fsSL https://swupdate.openvpn.net/repos/repo-public.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/openvpn-repo-public.gpg
+RUN echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/openvpn-repo-public.gpg] https://build.openvpn.net/debian/openvpn/release/2.6 kinetic main" > /etc/apt/sources.list.d/openvpn-aptrepo.list
+RUN apt update
+RUN apt install openvpn iptables bash easy-rsa iputils-ping iproute2 -y
+RUN ln -s /usr/share/easy-rsa/easyrsa /usr/local/bin  
+RUN rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
-LABEL maintainer="Kyle Manna <kyle@kylemanna.com>"
-
-# Testing: pamtester
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/repositories && \
-    apk add --update openvpn iptables bash easy-rsa openvpn-auth-pam google-authenticator pamtester libqrencode && \
-    ln -s /usr/share/easy-rsa/easyrsa /usr/local/bin && \
-    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
+RUN openvpn --version
 
 # Needed by scripts
 ENV OPENVPN=/etc/openvpn
@@ -26,6 +26,3 @@ CMD ["ovpn_run"]
 
 ADD ./bin /usr/local/bin
 RUN chmod a+x /usr/local/bin/*
-
-# Add support for OTP authentication using a PAM module
-ADD ./otp/openvpn /etc/pam.d/
